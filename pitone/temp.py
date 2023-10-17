@@ -61,7 +61,7 @@ class Bridge():
             # look for a byte from serial
             if not self.ser is None:
 
-                if self.ser.in_waiting > 0k:
+                if self.ser.in_waiting > 0:
                     # data available from the serial port
                     lastchar = self.ser.read(1)
 
