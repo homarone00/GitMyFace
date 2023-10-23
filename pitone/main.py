@@ -4,6 +4,10 @@ import serial
 import serial.tools.list_ports
 import requests
 import configparser
+import time
+
+
+
 
 
 class Bridge():
@@ -58,14 +62,23 @@ class Bridge():
 		headers = {'X-AIO-Key': self.config.get("HTTPAIO", "X-AIO-Key")}
 		response = requests.get(geturl, headers=headers)
 		json = response.json()
-		self.ser
+		value = json['value']
 		print(response.json())
+		return value
 
 
 	def loop(self):
 		# infinite loop for serial managing
-		#
+		tempo=time.time()
+
 		while (True):
+			if (time.time()- tempo) > 5:
+				tempo = time.time()
+				letter = self.getdata()
+				print('lettera:'+ letter)
+				if not self.ser is None:
+					self.ser.write(letter.encode())
+
 			#look for a byte from serial
 			if not self.ser is None:
 
@@ -80,14 +93,17 @@ class Bridge():
 					else:
 						# append
 						self.inbuffer.append (lastchar)
-		self.getdata()
+
+
 
 	def useData(self):
 		# I have received a packet from the serial port. I can use it
 		if len(self.inbuffer)<3:   # at least header, size, footer
+			print('caca')
 			return False
 		# split parts
 		if self.inbuffer[0] != b'\xff':
+			print(self.inbuffer)
 			return False
 
 		numval = int.from_bytes(self.inbuffer[1], byteorder='little')
